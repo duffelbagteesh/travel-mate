@@ -1,0 +1,83 @@
+{% extends "layouts/default.njk" %}
+
+{% block content %}
+
+<section class="container" id="profile">
+  <div class="row">
+    <div class="col-sm-6 offset-sm-3">
+      <h1>{{ title }}</h1>
+      <ul class="navigation">
+        <li class="navigation1"><a href="/profile">View Your Profile</a></li>
+        <li class="navigation1"><a href="/feed/#create">Create a New Post</a></li>
+        <li class="navigation1"><a href="/feed">View Your Feed</a></li>
+        <li class="navigation1"><a href="/logout">Logout</a></li>
+      </ul>
+      <div class="page-content">
+      <img src="{{ user.picture }}" alt="profie picture" width="100px">
+      <p class="info">Email: <span>{{ user.email }}</span></p>
+      <p class="info">Name: <span id="given_name">{{ user.given_name }}</span> <input id="given_name_input" type="text" style="display: none;"> <i class="fas fa-pencil-alt edit-icon" onclick="edit('given_name')"></i></p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+.edit-icon {
+  visibility: hidden;
+}
+
+p:hover .edit-icon {
+  visibility: visible;
+}
+
+p:nth-child(2):hover .edit-icon {
+  visibility: hidden;
+}
+</style>
+
+<script>
+function edit(field) {
+  document.getElementById(field).style.display = 'none';
+  const input = document.getElementById(field + '_input');
+  input.style.display = 'inline';
+  input.value = document.getElementById(field).textContent;
+}
+
+document.getElementById('given_name_input').addEventListener('blur', function() { save('given_name'); });
+document.getElementById('given_name_input').addEventListener('keyup', function(event) {
+  if (event.key === 'Enter') {
+    save('given_name');
+  }
+});
+
+async function save(field) {
+  const newValue = document.getElementById(field + '_input').value;
+
+  const response = await fetch('/profile/update', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      auth0_id: '{{ user.auth0_id }}',
+      field: field,
+      value: newValue
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update user information');
+  }
+
+  const updatedUser = await response.json();
+  document.getElementById(field).textContent = updatedUser[field];
+
+  document.getElementById(field + '_input').style.display = 'none';
+  const span = document.getElementById(field);
+  span.style.display = 'inline';
+  span.textContent = newValue;
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "layouts/default.njk" %}
+
+{% block content %}
+  <img src="/img/logo.png" alt="TravelMate Logo" width="500" height="600" class="logo-2">
+  <h4>Welcome, {{ user.username }}</h4>
+  <ul class="navigation">
+    <li class="navigation1"><a href="/profile">View Your Profile</a></li>
+    <li class="navigation1"><a href="/feed" id="create">Create a New Post</a></li>
+    <li class="navigation1"><a href="/feed">View Your Feed</a></li>
+    <li class="navigation1"><a href="/logout">Logout</a></li>
+  </ul>
+
+  <form action="/create" method="post" class="post">
+    <label for="title">Title:</label><br>
+    <input type="text" id="title" name="title" class="input"><br>
+    <label for="content">Content:</label><br>
+    <textarea id="content" name="content" class="input"></textarea><br>
+    <input type="submit" value="Post" class="submitbutton">
+</form>
+
+<ul class="posts">
+  {% for post in posts %}
+    <li class= "submittedposts">
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.content }}</p>
+      <p class="post-info">Posted by: {{ post.given_name if post.given_name else post.auth0_id }}</p>
+      <p class="post-info">Posted at: {{ post.created_at }}</p>
+      {% if user.sub == post.auth0_id %}
+        <button class="delete-post" data-id="{{ post.id }}">Delete</button>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+
+<script>
+  document.querySelectorAll('.delete-post').forEach(button => {
+    button.addEventListener('click', async function() {
+      const id = button.getAttribute('data-id');
+      const response = await fetch(`/delete/${id}`, { method: 'DELETE' });
+      console.log('Response:', response);
+      if (response.ok) {
+        console.log('Removing post:', button.parentElement);
+        button.parentElement.remove();
+      } else {
+        console.error('Failed to delete post:', response.statusText);
+      }
+    });
+  });
+</script>
+{% endblock %}

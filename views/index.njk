@@ -1,0 +1,13 @@
+{% extends "layouts/default.njk" %}
+
+{% block content %}
+  
+  <img src="/img/logo.png" class="logo">
+  <p class="welcome-message">Welcome to TravelMate.</p>
+  <p> An app for people to share with others the best places to travel, and little hidden tings that are there</p>
+
+  {% if not isAuthenticated %}
+    <p><button class="login-button"><a href="/login" class="login"><strong>Log in</strong></a></button></p>
+  {% endif %}
+  
+{% endblock %}
